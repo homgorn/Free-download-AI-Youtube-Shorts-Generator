@@ -8,7 +8,7 @@ AI-powered tool to automatically generate engaging YouTube Shorts from long-form
 
 - **🎬 Flexible Input**: Supports both YouTube URLs and local video files
 - **🎤 GPU-Accelerated Transcription**: CUDA-enabled Whisper for fast speech-to-text
-- **🤖 AI Highlight Selection**: GPT-5-nano automatically finds the most engaging 2-minute segments
+- **🤖 AI Highlight Selection**: GPT-4o-mini automatically finds the most engaging 2-minute segments
 - **✅ Interactive Approval**: Review and approve/regenerate selections with 15-second auto-approve timeout
 - **📝 Auto Subtitles**: Stylized captions with Franklin Gothic font burned into video
 - **🎯 Smart Cropping**: 
@@ -38,12 +38,23 @@ AI-powered tool to automatically generate engaging YouTube Shorts from long-form
    ```
 
 2. **Install system dependencies:**
+
+   **Ubuntu/Debian:**
    ```bash
    sudo apt install -y ffmpeg libavdevice-dev libavfilter-dev libopus-dev \
      libvpx-dev pkg-config libsrtp2-dev imagemagick
    ```
 
-3. **Fix ImageMagick security policy** (required for subtitles):
+   **macOS:**
+   ```bash
+   brew install ffmpeg imagemagick
+   ```
+
+   **Windows:**
+   - Install [FFmpeg](https://ffmpeg.org/download.html) and add to PATH
+   - Install [ImageMagick](https://imagemagick.org/script/download.php#windows)
+
+3. **Fix ImageMagick security policy** (Linux only, required for subtitles):
    ```bash
    sudo sed -i 's/rights="none" pattern="@\*"/rights="read|write" pattern="@*"/' /etc/ImageMagick-6/policy.xml
    ```
@@ -60,11 +71,26 @@ AI-powered tool to automatically generate engaging YouTube Shorts from long-form
    ```
 
 6. **Set up environment variables:**
-   
+
    Create a `.env` file in the project root:
    ```bash
    OPENAI_API=your_openai_api_key_here
    ```
+
+### CPU-Only Installation
+
+If you don't have an NVIDIA GPU, see [INSTALL_CPU.md](INSTALL_CPU.md) for CPU-only setup instructions.
+
+### Docker Installation
+
+```bash
+# Build and run with Docker Compose
+docker-compose up --build
+
+# Or build manually
+docker build -t ai-shorts-generator .
+docker run -v $(pwd)/.env:/app/.env -v $(pwd)/videos:/app/videos ai-shorts-generator
+```
 
 ## Usage
 
@@ -159,33 +185,38 @@ Auto-approving in 15 seconds if no input...
 ## Configuration
 
 ### Subtitle Styling
-Edit `Components/Subtitles.py`:
-- **Font**: Line 51 (`font='Franklin-Gothic'`)
-- **Size**: Line 47 (`fontsize=80`)
-- **Color**: Line 48 (`color='#2699ff'`)
-- **Outline**: Lines 49-50 (`stroke_color='black'`, `stroke_width=2`)
+Edit `Components/Subtitles.py` - search for `TextClip`:
+- **Font**: `font='Franklin-Gothic'` (requires Franklin Gothic installed, or change to any system font)
+- **Size**: `fontsize=80`
+- **Color**: `color='#2699ff'` (blue)
+- **Outline**: `stroke_color='black'`, `stroke_width=2`
+
+To list available fonts:
+```bash
+convert -list font | grep -i "font:"
+```
 
 ### Highlight Selection Criteria
 Edit `Components/LanguageTasks.py`:
-- **Prompt**: Line 29 (adjust what's "interesting, useful, surprising, controversial, or thought-provoking")
-- **Model**: Line 54 (`model="gpt-4o-mini"`)
-- **Temperature**: Line 55 (`temperature=1.0`)
+- **Prompt**: Modify the `system` variable to adjust what's "interesting, useful, surprising, controversial, or thought-provoking"
+- **Model**: Change `model="gpt-4o-mini"` in `ChatOpenAI()` call
+- **Temperature**: Adjust `temperature=1.0` (higher = more creative)
 
 ### Motion Tracking
-Edit `Components/FaceCrop.py`:
-- **Update frequency**: Line 93 (`update_interval = int(fps)`) - currently 1 shift/second
-- **Smoothing**: Line 115 (`0.90 * smoothed_x + 0.10 * target_x`) - currently 90%/10%
-- **Motion threshold**: Line 107 (`motion_threshold = 2.0`)
+Edit `Components/FaceCrop.py` - search for `use_motion_tracking`:
+- **Update frequency**: `update_interval = int(fps)` - currently 1 shift/second
+- **Smoothing**: `0.90 * smoothed_x + 0.10 * target_x` - 90% previous, 10% new
+- **Motion threshold**: `motion_threshold = 2.0`
 
 ### Face Detection
-Edit `Components/FaceCrop.py`:
-- **Sensitivity**: Line 37 (`minNeighbors=8`) - Higher = fewer false positives
-- **Minimum size**: Line 37 (`minSize=(30, 30)`) - Minimum face size in pixels
+Edit `Components/FaceCrop.py` - search for `detectMultiScale`:
+- **Sensitivity**: `minNeighbors=8` - Higher = fewer false positives
+- **Minimum size**: `minSize=(30, 30)` - Minimum face size in pixels
 
 ### Video Quality
-Edit `Components/Subtitles.py` and `Components/FaceCrop.py`:
-- **Bitrate**: Subtitles.py line 74 (`bitrate='3000k'`)
-- **Preset**: Subtitles.py line 73 (`preset='medium'`)
+Edit `Components/Subtitles.py` - search for `write_videofile`:
+- **Bitrate**: `bitrate='3000k'`
+- **Preset**: `preset='medium'` (options: ultrafast, fast, medium, slow, veryslow)
 
 ## Output Files
 

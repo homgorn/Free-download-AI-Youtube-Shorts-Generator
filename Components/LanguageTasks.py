@@ -54,7 +54,7 @@ def GetHighlight(Transcription):
     
     try:
         llm = ChatOpenAI(
-            model="gpt-5-nano",  # Much cheaper than gpt-4o
+            model="gpt-4o-mini",  # Cost-effective model
             temperature=1.0,
             api_key = api_key
         )
