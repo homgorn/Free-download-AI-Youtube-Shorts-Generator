@@ -19,7 +19,13 @@ AI-powered tool to automatically generate engaging YouTube Shorts from long-form
 - **🔄 Concurrent Execution**: Unique session IDs allow multiple instances to run simultaneously
 - **📦 Clean Output**: Slugified filenames (e.g., `my-video-title_short.mp4`) and automatic temp file cleanup
 
-## Installation
+## Quick Start (No Setup)
+
+Want to skip the installation? Try the [hosted API](https://muapi.ai/playground/ai-clipping) - same AI clipping with faster processing and no dependencies to manage.
+
+---
+
+## Installation (Self-Hosted)
 
 ### Prerequisites
 
@@ -259,6 +265,9 @@ grep 'pattern="@\*"' /etc/ImageMagick-6/policy.xml
 - Video needs visible faces in first 30 frames
 - For screen recordings, automatic motion tracking applies
 - Low-resolution videos may have less reliable detection
+
+### Still Having Issues?
+If setup is too complex or results aren't meeting expectations, the [cloud API version](https://muapi.ai/playground/ai-clipping) handles all the infrastructure and often produces better clips.
 
 ## Contributing
 
